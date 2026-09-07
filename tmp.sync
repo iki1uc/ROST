@@ -1,0 +1,95 @@
+// ─── tmp.sync · Diagnose ────────────────────────────────────
+// Lädt alle Module und zeigt deren Output
+
+import * as K81 from "./JS/3x81.js";
+import * as Rings5D from "./JS/AtomRings5D.js";
+import * as Orbit from "./JS/Orbit48D.js";
+import * as ZAxis from "./JS/Z.axis.js";
+import * as VAxis from "./JS/V.axis.js";
+import * as Hyper81 from "./JS/81tmp.hyper.js";
+import * as InfinityCross from "./JS/InfinityCrossSVG.js";
+
+function show(title, value) {
+    const div = document.createElement("div");
+    div.style.background = "#111";
+    div.style.color = "#eee";
+    div.style.padding = "10px";
+    div.style.margin = "10px 0";
+    div.innerHTML = `<h3>${title}</h3><pre>${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}</pre>`;
+    document.body.appendChild(div);
+}
+
+export async function diagnose() {
+    const results = {};
+
+    // Kernel
+    try {
+        const kernelFn = K81.Kernel3x81 || K81.Kernel81 || K81.default;
+        const atom = await kernelFn?.();
+        results.kernel = atom;
+        show("Kernel Output", JSON.stringify(atom, null, 2));
+    } catch (e) {
+        show("❌ Kernel ERROR", e.message);
+    }
+
+    // Rings5D
+    try {
+        const r = Rings5D.AtomRings5D?.();
+        results.rings5D = r;
+        show("AtomRings5D", r ?? "Returned NULL");
+    } catch (e) {
+        show("❌ AtomRings5D ERROR", e.message);
+    }
+
+    // Orbit48D
+    try {
+        const o = Orbit.Orbit48D?.();
+        results.orbit = o;
+        show("Orbit48D", JSON.stringify(o, null, 2));
+    } catch (e) {
+        show("❌ Orbit48D ERROR", e.message);
+    }
+
+    // Z‑Axis
+    try {
+        const z = ZAxis.Z_Axis?.();
+        results.zAxis = z;
+        show("Z_Axis", JSON.stringify(z, null, 2));
+    } catch (e) {
+        show("❌ Z_Axis ERROR", e.message);
+    }
+
+    // V‑Axis
+    try {
+        const v = VAxis.V_Axis?.();
+        results.vAxis = v;
+        show("V_Axis", JSON.stringify(v, null, 2));
+    } catch (e) {
+        show("❌ V_Axis ERROR", e.message);
+    }
+
+    // HyperMatrix
+    try {
+        const hyper = await Hyper81._81tmp_HyperMatrix?.();
+        results.hyper = hyper;
+        show("81tmp HyperMatrix", JSON.stringify(hyper, null, 2));
+    } catch (e) {
+        show("❌ HyperMatrix ERROR", e.message);
+    }
+
+    // InfinityCrossSVG
+    try {
+        const svg = InfinityCross.InfinityCrossSVG?.();
+        results.infinity = svg;
+        show("InfinityCrossSVG", svg?.outerHTML ?? svg ?? "Returned NULL");
+    } catch (e) {
+        show("❌ InfinityCrossSVG ERROR", e.message);
+    }
+
+    return results;
+}
+
+// Auto‑Run
+if (import.meta.url === document.currentScript?.src) {
+    diagnose();
+}
